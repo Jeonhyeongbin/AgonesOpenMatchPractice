@@ -1,0 +1,18 @@
+apiVersion: agones.dev/v1
+kind: Fleet
+metadata:
+  name: xonotic
+spec:
+  replicas: 3
+  template:
+    spec:
+      ports:
+      - name: default
+        portPolicy: Dynamic
+        containerPort: 26000
+        protocol: UDP
+      template:
+        spec:
+          containers:
+          - name: xonotic
+            image: gcr.io/agones-images/xonotic-example:0.9

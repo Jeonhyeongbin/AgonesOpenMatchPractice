@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open-match-evaluator
+  namespace: open-match
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: open-match-evaluator
+  template:
+    metadata:
+      labels:
+        app: open-match-evaluator
+    spec:
+      containers:
+      - name: evaluator
+        image: gcr.io/open-match-public-images/openmatch-default-evaluator:1.8.0
+        ports:
+        - containerPort: 50508
+        volumeMounts:
+        - name: om-config-volume-default
+          mountPath: /app/config/default
+        - name: om-config-volume-override
+          mountPath: /app/config/override
+      volumes:
+      - name: om-config-volume-default
+        configMap:
+          name: open-match-configmap-default
+      - name: om-config-volume-override
+        configMap:
+          name: open-match-configmap-override
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-match-evaluator
+  namespace: open-match
+spec:
+  selector:
+    app: open-match-evaluator
+  ports:
+  - port: 50508
+    targetPort: 50508
