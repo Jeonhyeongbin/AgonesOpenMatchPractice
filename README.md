@@ -5,21 +5,24 @@ Quilkin, Agones, OpenMatch를 활용한 게임 데디케이티드 서버 및 매
 > 🤖 이 프로젝트는 Claude (Anthropic)의 도움을 받아 구축되었습니다.
 
 ## 전체 아키텍처
-플레이어
-↓ HTTP 요청
-로비 서버 (lobby-server)
-↓ gRPC
-OpenMatch Frontend
-↓
-Match Function (match-function)
-↓
-OpenMatch Backend
-↓
-Director (director)
-↓ Allocate 요청
-Agones GameServer (Xonotic Fleet)
-↓ 서버 주소 반환
-플레이어 → 게임 서버 접속
+
+```mermaid
+flowchart TD
+    A[플레이어] -->|HTTP POST /match| B[로비 서버\nlobby-server]
+    B -->|gRPC CreateTicket| C[OpenMatch Frontend]
+    C --> D[OpenMatch Backend]
+    D -->|Run 호출| E[Match Function\nmatch-function]
+    E -->|2명 매치 생성| D
+    F[Director] -->|FetchMatches 폴링| D
+    D -->|매치 반환| F
+    F -->|Allocate 요청| G[Agones\nXonotic Fleet]
+    G -->|서버 주소 반환| F
+    F -->|AssignTickets| C
+    B -->|서버 주소 반환| A
+    A -->|UDP 접속| G
+```
+
+
 ## 컴포넌트 설명
 
 ### lobby-server
